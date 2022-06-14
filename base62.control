@@ -1,0 +1,6 @@
+# base62 extension
+comment = 'Base62 extension for PostgreSQL'
+default_version = '0.0.1'
+relocatable = true
+requires = ''
+module_pathname = '$libdir/base62'

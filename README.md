@@ -1,2 +1,2 @@
 # pg-base62
-base62 extension for Postgres
+Base62 extension for PostgreSQL
