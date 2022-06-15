@@ -60,7 +60,7 @@ base62_from_str(const char *str)
 					(errcode(ERRCODE_SYNTAX_ERROR),
 					 errmsg("value \"%c\" is not a valid digit for type base62", str[i])));
 
-		c += d * base62_powers[n-i-1];
+		c += d * base62_powers[n - i - 1];
 
 		if (c < 0)
 			OUTOFRANGE_ERROR(str, "base62");
