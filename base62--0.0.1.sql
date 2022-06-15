@@ -385,8 +385,19 @@ IMMUTABLE STRICT PARALLEL SAFE;
 CREATE CAST (text as hugebase62) WITH FUNCTION hugebase62(text) AS IMPLICIT;
 CREATE CAST (hugebase62 as text) WITH FUNCTION text(hugebase62);
 
-CREATE CAST (bigint as hugebase62) WITHOUT FUNCTION AS IMPLICIT;
-CREATE CAST (hugebase62 as bigint) WITHOUT FUNCTION AS IMPLICIT;
+
+CREATE FUNCTION hugebase62(bytea) RETURNS hugebase62
+AS 'MODULE_PATHNAME', 'hugebase62_cast_from_bytea'
+LANGUAGE C
+IMMUTABLE STRICT PARALLEL SAFE;
+
+CREATE FUNCTION bytea(hugebase62) RETURNS bytea
+AS 'MODULE_PATHNAME', 'hugebase62_cast_to_bytea'
+LANGUAGE C
+IMMUTABLE STRICT PARALLEL SAFE;
+
+CREATE CAST (bytea as hugebase62) WITH FUNCTION hugebase62(bytea) AS IMPLICIT;
+CREATE CAST (hugebase62 as bytea) WITH FUNCTION bytea(hugebase62) AS IMPLICIT;
 
 -- Definition of hugebase62 operators
 

@@ -1,4 +1,5 @@
 #include "base62.h"
+#include "fmgr.h"
 
 #include "utils/builtins.h"
 
