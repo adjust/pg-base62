@@ -91,7 +91,7 @@ calc_hugebase62_powers(int pow_idx)
 
 	for (int cur_pow_idx = HUGEBASE62_NONZERO_POWERS; cur_pow_idx <= pow_idx; cur_pow_idx++)
 	{
-		if (hugebase62_powers[cur_pow_idx] == 0ULL)
+		if (hugebase62_powers[cur_pow_idx] != 0ULL)
 			continue;
 		hugebase62_powers[cur_pow_idx] = hugebase62_powers[cur_pow_idx - 1] * BASE62_BASE;
 	}
