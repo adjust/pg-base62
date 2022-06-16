@@ -1,7 +1,10 @@
 #include "base62.h"
 #include "fmgr.h"
 
+#include "lib/stringinfo.h"
+#include "libpq/pqformat.h"
 #include "utils/builtins.h"
+#include "utils/hashutils.h"
 
 #define HUGEBASE62_NONZERO_POWERS	11
 #define HUGEBASE62_LENGTH			22
@@ -44,6 +47,12 @@ static hugebase62 hugebase62_powers[HUGEBASE62_LENGTH] =
 	// 704423425546998022968330264616370176
 	// 43674252383913877424036476406214950912
 };
+
+#define CHECK_HUGEBASE62_SIZE(nbytes)										\
+	if ((nbytes) != sizeof(hugebase62))										\
+		ereport(ERROR,														\
+				(errmsg("received incorrect length (expected %ld bytes, got %d)", \
+						sizeof(hugebase62), (nbytes))));
 
 #define DatumGetHugebase62(X)		((hugebase62 *) DatumGetPointer(X))
 #define Hugebase62GetDatum(X)		PointerGetDatum(X)
@@ -151,7 +160,7 @@ hugebase62_to_str(hugebase62 *c)
 				p = 0;
 	hugebase62	m = Abs(*c);
 	bool		discard = true;
-	char	   *str = palloc0((HUGEBASE62_LENGTH + 2) * sizeof(char));
+	char	   *str = palloc((HUGEBASE62_LENGTH + 2) * sizeof(char));
 
 	if (c < 0)
 		str[p++] = '-';
@@ -168,6 +177,9 @@ hugebase62_to_str(hugebase62 *c)
 		if (!discard)
 			str[p++] = base62_digits[d];
 	}
+
+	// Null terminator
+	str[p] = '\0';
 
 	return str;
 }
@@ -191,11 +203,29 @@ hugebase62_out(PG_FUNCTION_ARGS)
 Datum
 hugebase62_recv(PG_FUNCTION_ARGS)
 {
+	StringInfo	buf = (StringInfo) PG_GETARG_POINTER(0);
+	int			nbytes;
+	hugebase62 *res;
+
+	nbytes = buf->len - buf->cursor;
+	CHECK_HUGEBASE62_SIZE(nbytes);
+
+	res = palloc(sizeof(hugebase62));
+	pq_copymsgbytes(buf, (char *) res, nbytes);
+
+	PG_RETURN_HUGEBASE62_P(res);
 }
 
 Datum
 hugebase62_send(PG_FUNCTION_ARGS)
 {
+	hugebase62 *value = PG_GETARG_HUGEBASE62_P(0);
+	StringInfoData buf;
+
+	pq_begintypsend(&buf);
+	pq_sendbytes(&buf, (char *) value, sizeof(hugebase62));
+
+	PG_RETURN_BYTEA_P(pq_endtypsend(&buf));
 }
 
 Datum
@@ -217,49 +247,103 @@ hugebase62_cast_to_text(PG_FUNCTION_ARGS)
 Datum
 hugebase62_cast_from_bytea(PG_FUNCTION_ARGS)
 {
+	bytea	   *value = PG_GETARG_BYTEA_P(0);
+	int			nbytes = VARSIZE_ANY_EXHDR(value);
+	hugebase62 *res;
+
+	CHECK_HUGEBASE62_SIZE(nbytes);
+
+	res = (hugebase62 *) palloc(sizeof(hugebase62));
+	memcpy(res, VARDATA_ANY(value), nbytes);
+
+	PG_RETURN_HUGEBASE62_P(res);
 }
 
 Datum
 hugebase62_cast_to_bytea(PG_FUNCTION_ARGS)
 {
+	hugebase62 *value = PG_GETARG_HUGEBASE62_P(0);
+	bytea	   *res;
+
+	res = (bytea *) palloc(sizeof(hugebase62) + VARHDRSZ);
+	SET_VARSIZE(res, sizeof(hugebase62) + VARHDRSZ);
+	memcpy(VARDATA(res), value, sizeof(hugebase62));
+
+	PG_RETURN_BYTEA_P(res);
 }
 
 Datum
 hugebase62_eq(PG_FUNCTION_ARGS)
 {
+	hugebase62 *a = PG_GETARG_HUGEBASE62_P(0);
+	hugebase62 *b = PG_GETARG_HUGEBASE62_P(1);
+
+	PG_RETURN_BOOL(*a == *b);
 }
 
 Datum
 hugebase62_ne(PG_FUNCTION_ARGS)
 {
+	hugebase62 *a = PG_GETARG_HUGEBASE62_P(0);
+	hugebase62 *b = PG_GETARG_HUGEBASE62_P(1);
+
+	PG_RETURN_BOOL(*a != *b);
 }
 
 Datum
 hugebase62_lt(PG_FUNCTION_ARGS)
 {
+	hugebase62 *a = PG_GETARG_HUGEBASE62_P(0);
+	hugebase62 *b = PG_GETARG_HUGEBASE62_P(1);
+
+	PG_RETURN_BOOL(*a < *b);
 }
 
 Datum
 hugebase62_le(PG_FUNCTION_ARGS)
 {
+	hugebase62 *a = PG_GETARG_HUGEBASE62_P(0);
+	hugebase62 *b = PG_GETARG_HUGEBASE62_P(1);
+
+	PG_RETURN_BOOL(*a <= *b);
 }
 
 Datum
 hugebase62_gt(PG_FUNCTION_ARGS)
 {
+	hugebase62 *a = PG_GETARG_HUGEBASE62_P(0);
+	hugebase62 *b = PG_GETARG_HUGEBASE62_P(1);
+
+	PG_RETURN_BOOL(*a > *b);
 }
 
 Datum
 hugebase62_ge(PG_FUNCTION_ARGS)
 {
+	hugebase62 *a = PG_GETARG_HUGEBASE62_P(0);
+	hugebase62 *b = PG_GETARG_HUGEBASE62_P(1);
+
+	PG_RETURN_BOOL(*a >= *b);
 }
 
 Datum
 hugebase62_cmp(PG_FUNCTION_ARGS)
 {
+	hugebase62 *a = PG_GETARG_HUGEBASE62_P(0);
+	hugebase62 *b = PG_GETARG_HUGEBASE62_P(1);
+
+	if (*a > *b)
+		PG_RETURN_INT32(1);
+	else if (*a == *b)
+		PG_RETURN_INT32(0);
+	else
+		PG_RETURN_INT32(-1);
 }
 
 Datum
 hash_hugebase62(PG_FUNCTION_ARGS)
 {
+	hugebase62 *value = PG_GETARG_HUGEBASE62_P(0);
+
+	PG_RETURN_INT32(DatumGetInt32(hash_any((unsigned char *) value, sizeof(hugebase62))));
 }
