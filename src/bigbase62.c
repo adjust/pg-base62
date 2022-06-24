@@ -90,7 +90,7 @@ bigbase62_from_str(const char *str)
 					(errcode(ERRCODE_SYNTAX_ERROR),
 					 errmsg("value \"%c\" is not a valid digit for type bigbase62", str[i])));
 
-		if (unlikely(mul_s64_overflow(d, bigbase62_powers[n - i - 1], &res_buf)))
+		if (mul_s64_overflow(d, bigbase62_powers[n - i - 1], &res_buf))
 			OUTOFRANGE_ERROR(str, "bigbase62");
 
 		res += res_buf;

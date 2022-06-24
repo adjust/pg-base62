@@ -84,7 +84,7 @@ base62_from_str(const char *str)
 					(errcode(ERRCODE_SYNTAX_ERROR),
 					 errmsg("value \"%c\" is not a valid digit for type base62", str[i])));
 
-		if (unlikely(mul_s32_overflow(d, base62_powers[n - i - 1], &res_buf)))
+		if (mul_s32_overflow(d, base62_powers[n - i - 1], &res_buf))
 			OUTOFRANGE_ERROR(str, "base62");
 
 		res += res_buf;
