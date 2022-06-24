@@ -4,7 +4,12 @@
 #include "lib/stringinfo.h"
 #include "libpq/pqformat.h"
 #include "utils/builtins.h"
+
+#if PG_VERSION_NUM >= 110000
 #include "utils/hashutils.h"
+#else
+#include "access/hash.h"
+#endif
 
 #define HUGEBASE62_NONZERO_POWERS	11
 #define HUGEBASE62_LENGTH			22
