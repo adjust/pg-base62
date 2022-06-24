@@ -5,7 +5,9 @@
 #include "libpq/pqformat.h"
 #include "utils/builtins.h"
 
-#if PG_VERSION_NUM >= 110000
+#if PG_VERSION_NUM >= 130000
+#include "common/hashfn.h"
+#elif PG_VERSION_NUM >= 110000
 #include "utils/hashutils.h"
 #else
 #include "access/hash.h"
@@ -350,5 +352,9 @@ hash_hugebase62(PG_FUNCTION_ARGS)
 {
 	hugebase62 *value = PG_GETARG_HUGEBASE62_P(0);
 
+#if PG_VERSION_NUM >= 130000
+	PG_RETURN_INT32(hash_bytes((unsigned char *) value, sizeof(hugebase62)));
+#else
 	PG_RETURN_INT32(DatumGetInt32(hash_any((unsigned char *) value, sizeof(hugebase62))));
+#endif
 }
