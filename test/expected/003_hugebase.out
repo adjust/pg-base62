@@ -1,0 +1,178 @@
+-- Test function
+create or replace function base62_encode(num bigint) 
+returns text
+as $$
+declare
+    k_base        integer := 62;
+    k_alphabet    text[] := string_to_array( '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'::text, null);
+    
+    v_return_text text := '';
+    v_remainder   integer;
+begin
+    loop
+        v_remainder := num % k_base;
+        num := num / k_base;
+        v_return_text := '' || k_alphabet[(v_remainder + 1)] || v_return_text;
+    exit when num <= 0;
+    end loop ;
+    return v_return_text;
+end;$$
+language plpgsql immutable;
+select '\x78000000000000000000000000000000'::bytea::hugebase62;
+ hugebase62 
+------------
+ 1w
+(1 row)
+
+select '1w'::hugebase62;
+ hugebase62 
+------------
+ 1w
+(1 row)
+
+select '1W'::hugebase62;
+ hugebase62 
+------------
+ 1W
+(1 row)
+
+select '3caaaaaaaaaaaaa'::hugebase62;
+   hugebase62    
+-----------------
+ 3caaaaaaaaaaaaa
+(1 row)
+
+select '2LKcb1'::hugebase62;
+ hugebase62 
+------------
+ 2LKcb1
+(1 row)
+
+select '\xffffff7f000000000000000000000000'::bytea::hugebase62;
+ hugebase62 
+------------
+ 2LKcb1
+(1 row)
+
+select '2lkcb1'::hugebase62::bytea;
+               bytea                
+------------------------------------
+ \xcfbe4497000000000000000000000000
+(1 row)
+
+select 'AzL8n0Y58m7aa'::hugebase62;
+  hugebase62   
+---------------
+ AzL8n0Y58m7aa
+(1 row)
+
+select 'azl8n0y58m7aa'::hugebase62;
+  hugebase62   
+---------------
+ azl8n0y58m7aa
+(1 row)
+
+-- ERROR: not a valid digit
+select '3&'::hugebase62;
+ERROR:  value "&" is not a valid digit for type hugebase62
+LINE 1: select '3&'::hugebase62;
+               ^
+select 'a'::hugebase62 > 'b'::hugebase62;
+ ?column? 
+----------
+ f
+(1 row)
+
+select 'a'::hugebase62 < 'b'::hugebase62;
+ ?column? 
+----------
+ t
+(1 row)
+
+-- Test values
+select base62_encode(i)::base62
+from generate_series(1, 80) g(i);
+ base62_encode 
+---------------
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ A
+ B
+ C
+ D
+ E
+ F
+ G
+ H
+ I
+ J
+ K
+ L
+ M
+ N
+ O
+ P
+ Q
+ R
+ S
+ T
+ U
+ V
+ W
+ X
+ Y
+ Z
+ a
+ b
+ c
+ d
+ e
+ f
+ g
+ h
+ i
+ j
+ k
+ l
+ m
+ n
+ o
+ p
+ q
+ r
+ s
+ t
+ u
+ v
+ w
+ x
+ y
+ z
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 1A
+ 1B
+ 1C
+ 1D
+ 1E
+ 1F
+ 1G
+ 1H
+ 1I
+(80 rows)
+
