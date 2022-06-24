@@ -84,6 +84,11 @@ select 'aaaaaaaaaaaaaaaaaaaa'::hugebase62;
  aaaaaaaaaaaaaaaaaaaa
 (1 row)
 
+-- ERROR: out of range
+select 'AAAAAAAAAAAAAAAAAAAAA'::hugebase62;
+ERROR:  value "AAAAAAAAAAAAAAAAAAAAA" is out of range for type hugebase62
+LINE 1: select 'AAAAAAAAAAAAAAAAAAAAA'::hugebase62;
+               ^
 -- ERROR: not a valid digit
 select '3&'::hugebase62;
 ERROR:  value "&" is not a valid digit for type hugebase62
