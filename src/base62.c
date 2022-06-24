@@ -22,13 +22,34 @@ PG_FUNCTION_INFO_V1(base62_out);
 PG_FUNCTION_INFO_V1(base62_cast_from_text);
 PG_FUNCTION_INFO_V1(base62_cast_to_text);
 
+/*
+ * This function copied from Postgres source codes because not all versions have
+ * it.
+ */
+static inline bool
+mul_s32_overflow(int32 a, int32 b, int32 *result)
+{
+#if defined(HAVE__BUILTIN_OP_OVERFLOW)
+	return __builtin_mul_overflow(a, b, result);
+#else
+	int64		res = (int64) a * (int64) b;
+
+	if (res > PG_INT32_MAX || res < PG_INT32_MIN)
+	{
+		*result = 0x5EED;		/* to avoid spurious warnings */
+		return true;
+	}
+	*result = (int32) res;
+	return false;
+#endif
+}
+
 static inline base62
 base62_from_str(const char *str)
 {
 	int			i = 0,
-				d = 0,
 				n = strlen(str);
-	base62		c = 0;
+	base62		res = 0;
 	bool		neg_sign = false;
 
 	if (n == 0)
@@ -49,6 +70,9 @@ base62_from_str(const char *str)
 
 	for (; i < n; i++)
 	{
+		int32		d;
+		int32		res_buf;
+
 		if (str[i] >= '0' && str[i] <= '9')
 			d = str[i] - '0';
 		else if (str[i] >= 'A' && str[i] <= 'Z')
@@ -60,22 +84,24 @@ base62_from_str(const char *str)
 					(errcode(ERRCODE_SYNTAX_ERROR),
 					 errmsg("value \"%c\" is not a valid digit for type base62", str[i])));
 
-		c += d * base62_powers[n - i - 1];
+		if (unlikely(mul_s32_overflow(d, base62_powers[n - i - 1], &res_buf)))
+			OUTOFRANGE_ERROR(str, "base62");
 
-		if (c < 0)
+		res += res_buf;
+
+		if (res < 0)
 			OUTOFRANGE_ERROR(str, "base62");
 	}
 	if (neg_sign)
-		return 0 - c;
+		return 0 - res;
 
-	return c;
+	return res;
 }
 
 static inline char *
 base62_to_str(base62 c)
 {
 	int			i,
-				d,
 				p = 0;
 	base62		m = abs(c);
 	bool		discard = true;
@@ -87,6 +113,8 @@ base62_to_str(base62 c)
 
 	for (i = BASE62_LENGTH - 1; i >= 0; i--)
 	{
+		int32		d;
+
 		d = m / base62_powers[i];
 		m = m - base62_powers[i] * d;
 

@@ -17,11 +17,6 @@ select '1W'::base62::int;
    94
 (1 row)
 
--- ERROR: out of range
-select '3caaaaaaaaaaaaa'::base62::bigint;
-ERROR:  value "3caaaaaaaaaaaaa" is out of range for type base62
-LINE 1: select '3caaaaaaaaaaaaa'::base62::bigint;
-               ^
 select '2LKcb1'::base62::int;
     int4    
 ------------
@@ -34,6 +29,21 @@ select 2147483647::base62;
  2LKcb1
 (1 row)
 
+-- ERROR: out of range
+select 'AAAAAA'::base62;
+ERROR:  value "AAAAAA" is out of range for type base62
+LINE 1: select 'AAAAAA'::base62;
+               ^
+-- ERROR: out of range
+select 'aaaaaa'::base62;
+ERROR:  value "aaaaaa" is out of range for type base62
+LINE 1: select 'aaaaaa'::base62;
+               ^
+-- ERROR: out of range
+select '3caaaaaaaaaaaaa'::base62::bigint;
+ERROR:  value "3caaaaaaaaaaaaa" is out of range for type base62
+LINE 1: select '3caaaaaaaaaaaaa'::base62::bigint;
+               ^
 -- ERROR: out of range
 select '2lkcb1'::base62::int;
 ERROR:  value "2lkcb1" is out of range for type base62

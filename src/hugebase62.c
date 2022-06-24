@@ -14,7 +14,8 @@
 #endif
 
 #define HUGEBASE62_NONZERO_POWERS	11
-#define HUGEBASE62_LENGTH			22
+// int128 can store 22 characters, to avoid overflow the capacity is lower
+#define HUGEBASE62_LENGTH			20
 
 static hugebase62 hugebase62_powers[HUGEBASE62_LENGTH] =
 {
@@ -37,8 +38,6 @@ static hugebase62 hugebase62_powers[HUGEBASE62_LENGTH] =
 	0ULL,
 	0ULL,
 	0ULL,
-	0ULL,
-	0ULL,
 	0ULL
 
 	// We cannot define literals for following values, because they are too large
@@ -51,8 +50,6 @@ static hugebase62 hugebase62_powers[HUGEBASE62_LENGTH] =
 	// 2955688905823059073916326510592
 	// 183252712161029662582812243656704
 	// 11361668153983839080134359106715648
-	// 704423425546998022968330264616370176
-	// 43674252383913877424036476406214950912
 };
 
 #define CHECK_HUGEBASE62_SIZE(nbytes)										\
@@ -108,7 +105,6 @@ static inline hugebase62 *
 hugebase62_from_str(const char *str)
 {
 	int			i = 0,
-				d = 0,
 				n = strlen(str);
 	hugebase62	res = 0;
 	bool		neg_sign = false;
@@ -134,6 +130,8 @@ hugebase62_from_str(const char *str)
 
 	for (; i < n; i++)
 	{
+		int32		d;
+
 		if (str[i] >= '0' && str[i] <= '9')
 			d = str[i] - '0';
 		else if (str[i] >= 'A' && str[i] <= 'Z')

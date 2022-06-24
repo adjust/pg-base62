@@ -25,13 +25,37 @@ PG_FUNCTION_INFO_V1(bigbase62_out);
 PG_FUNCTION_INFO_V1(bigbase62_cast_from_text);
 PG_FUNCTION_INFO_V1(bigbase62_cast_to_text);
 
+/*
+ * This function copied from Postgres source codes because not all versions have
+ * it.
+ */
+static inline bool
+mul_s64_overflow(int64 a, int64 b, int64 *result)
+{
+#if defined(HAVE__BUILTIN_OP_OVERFLOW)
+	return __builtin_mul_overflow(a, b, result);
+#elif defined(HAVE_INT128)
+	int128		res = (int128) a * (int128) b;
+
+	if (res > PG_INT64_MAX || res < PG_INT64_MIN)
+	{
+		*result = 0x5EED;		/* to avoid spurious warnings */
+		return true;
+	}
+	*result = (int64) res;
+	return false;
+#else
+#error Cannot multiply int64 without built-in int128 support
+	return true;
+#endif
+}
+
 static inline bigbase62
 bigbase62_from_str(const char *str)
 {
 	int			i = 0,
-				d = 0,
 				n = strlen(str);
-	bigbase62	c = 0;
+	bigbase62	res = 0;
 	bool		neg_sign = false;
 
 	if (n == 0){
@@ -52,6 +76,9 @@ bigbase62_from_str(const char *str)
 
 	for (; i < n; i++)
 	{
+		int32		d;
+		int64		res_buf;
+
 		if (str[i] >= '0' && str[i] <= '9')
 			d = str[i] - '0';
 		else if (str[i] >= 'A' && str[i] <= 'Z')
@@ -63,22 +90,24 @@ bigbase62_from_str(const char *str)
 					(errcode(ERRCODE_SYNTAX_ERROR),
 					 errmsg("value \"%c\" is not a valid digit for type bigbase62", str[i])));
 
-		c += d * bigbase62_powers[n - i - 1];
+		if (unlikely(mul_s64_overflow(d, bigbase62_powers[n - i - 1], &res_buf)))
+			OUTOFRANGE_ERROR(str, "bigbase62");
 
-		if (c < 0)
+		res += res_buf;
+
+		if (res < 0)
 			OUTOFRANGE_ERROR(str, "bigbase62");
 	}
 	if (neg_sign)
-		return 0 - c;
+		return 0 - res;
 
-	return c;
+	return res;
 }
 
 static inline char *
 bigbase62_to_str(bigbase62 c)
 {
 	int			i,
-				d,
 				p = 0;
 	bigbase62	m = labs(c);
 	bool		discard = true;
@@ -89,6 +118,8 @@ bigbase62_to_str(bigbase62 c)
 
 	for (i = BIGBASE62_LENGTH - 1; i >= 0; i--)
 	{
+		int64		d;
+
 		d = m / bigbase62_powers[i];
 		m = m - bigbase62_powers[i] * d;
 

@@ -16,11 +16,6 @@ select '1W'::bigbase62::bigint;
    94
 (1 row)
 
--- ERROR: out of range
-select '3caaaaaaaaaaaaa'::bigbase62::bigint;
-ERROR:  value "3caaaaaaaaaaaaa" is out of range for type bigbase62
-LINE 1: select '3caaaaaaaaaaaaa'::bigbase62::bigint;
-               ^
 select '2LKcb1'::bigbase62::bigint;
     int8    
 ------------
@@ -51,6 +46,21 @@ select 'AzL8n0Y58m7'::bigbase62;
  AzL8n0Y58m7
 (1 row)
 
+-- ERROR: out of range
+select 'AAAAAAAAAAA'::base62;
+ERROR:  value "AAAAAAAAAAA" is out of range for type base62
+LINE 1: select 'AAAAAAAAAAA'::base62;
+               ^
+-- ERROR: out of range
+select 'aaaaaaaaaaa'::base62;
+ERROR:  value "aaaaaaaaaaa" is out of range for type base62
+LINE 1: select 'aaaaaaaaaaa'::base62;
+               ^
+-- ERROR: out of range
+select '3caaaaaaaaaaaaa'::bigbase62::bigint;
+ERROR:  value "3caaaaaaaaaaaaa" is out of range for type bigbase62
+LINE 1: select '3caaaaaaaaaaaaa'::bigbase62::bigint;
+               ^
 -- ERROR: not a valid digit
 select '3&'::bigbase62::bigint;
 ERROR:  value "&" is not a valid digit for type bigbase62

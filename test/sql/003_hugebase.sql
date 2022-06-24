@@ -28,6 +28,8 @@ select '\xffffff7f000000000000000000000000'::bytea::hugebase62;
 select '2lkcb1'::hugebase62::bytea;
 select 'AzL8n0Y58m7aa'::hugebase62;
 select 'azl8n0y58m7aa'::hugebase62;
+select 'AAAAAAAAAAAAAAAAAAAA'::hugebase62;
+select 'aaaaaaaaaaaaaaaaaaaa'::hugebase62;
 -- ERROR: not a valid digit
 select '3&'::hugebase62;
 select 'a'::hugebase62 > 'b'::hugebase62;
