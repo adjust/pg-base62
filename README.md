@@ -26,6 +26,11 @@ representation is 6 characters and maximum value of numeric representation is
 
 =# select '1111111'::base62::int;
 ERROR:  value "1111111" is out of range for type base62
+
+=# select '2lkcb'::base62::int, '2lkcb'::base62, '2LKCB'::base62::int, '2LKCB'::base62;
+   int4   | base62 |   int4   | base62 
+----------+--------+----------+--------
+ 40933305 | 2lkcb  | 34635195 | 2LKCB
 ```
 
 ### `bigbase62`
@@ -42,6 +47,11 @@ representation is 9223372036854775807.
 
 =# select '111111111111'::bigbase62::bigint;
 ERROR:  value "111111111111" is out of range for type bigbase62
+
+=# select '2lkcb1'::bigbase62::bigint, '2lkcb1'::bigbase62, '2LKCB1'::bigbase62::bigint, '2LKCB1'::bigbase62;
+    int8    | bigbase62 |    int8    | bigbase62 
+------------+-----------+------------+-----------
+ 2537864911 | 2lkcb1    | 2147382091 | 2LKCB1
 ```
 
 ### `hugebase62`
@@ -57,4 +67,14 @@ string representation is 20 characters.
 
 =# select '111111111111111111111'::hugebase62;
 ERROR:  value "111111111111111111111" is out of range for type hugebase62
+
+=# select '2lkcb1'::hugebase62::bytea, '2lkcb1'::hugebase62, '2LKCB1'::hugebase62::bytea, '2LKCB1'::hugebase62;
+               bytea                | hugebase62 |               bytea                | hugebase62 
+------------------------------------+------------+------------------------------------+------------
+ \xcfbe4497000000000000000000000000 | 2lkcb1     | \x4b73fe7f000000000000000000000000 | 2LKCB1
+
+=# select '\xcfbe4497000000000000000000000000'::bytea::hugebase62;
+ hugebase62 
+------------
+ 2lkcb1
 ```

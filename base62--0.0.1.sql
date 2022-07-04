@@ -521,3 +521,27 @@ CREATE OPERATOR CLASS hash_hugebase62_ops
     DEFAULT FOR TYPE hugebase62 USING hash AS
         OPERATOR        1       = ,
         FUNCTION        1       hash_hugebase62(hugebase62);
+
+-- Auxiliary functions
+
+CREATE OR REPLACE FUNCTION bigbase62_encode(num bigint) 
+RETURNS text
+AS $$
+DECLARE
+    k_base        integer := 62;
+    k_alphabet    text[] := string_to_array('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'::text, NULL);
+    
+    v_return_text text := '';
+    v_remainder   integer;
+BEGIN
+    LOOP
+        v_remainder := num % k_base;
+        num := num / k_base;
+        v_return_text := '' || k_alphabet[(v_remainder + 1)] || v_return_text;
+    exit WHEN num <= 0;
+    END LOOP;
+    RETURN v_return_text;
+END;
+$$
+LANGUAGE plpgsql
+IMMUTABLE PARALLEL SAFE;
