@@ -37,6 +37,9 @@ select '3&'::hugebase62;
 select 'a'::hugebase62 > 'b'::hugebase62;
 select 'a'::hugebase62 < 'b'::hugebase62;
 
+-- Negativity test
+select i::text::hugebase62, i::text::hugebase62::bytea from (values ('11111'), ('acDeq'), ('10'), ('A'), ('-1'), ('-A')) as v(i);
+
 -- Test values
 select base62_encode(i)::base62
 from generate_series(1, 80) g(i);

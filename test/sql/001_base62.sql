@@ -19,6 +19,9 @@ select '3&'::base62::bigint;
 select 'a'::base62 > 'b'::base62;
 select 'a'::base62 < 'b'::base62;
 
+-- Negativity test
+select i::base62, i::base62::int from (values ('11111'), ('acDeq'), ('10'), ('A'), ('-1'), ('-A')) as v(i);
+
 -- Test values
 select i::base62
 from generate_series(1, 80) g(i);

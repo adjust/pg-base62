@@ -78,6 +78,18 @@ select 'a'::bigbase62 < 'b'::bigbase62;
  t
 (1 row)
 
+-- Negativity test
+select  i::bigbase62,i::bigbase62::bigint from (values ('11111'), ('acDeq'), ('10'), ('A'), ('-1'), ('-A')) as v(i);
+   i   |     i     
+-------+-----------
+ 11111 |  15018571
+ acDeq | 541057064
+ 10    |        62
+ A     |        10
+ -1    |        -1
+ -A    |       -10
+(6 rows)
+
 -- Test values
 select i::bigint::bigbase62
 from generate_series(1, 80) g(i);
