@@ -167,7 +167,7 @@ hugebase62_to_str(hugebase62 *c)
 	bool		discard = true;
 	char	   *str = palloc((HUGEBASE62_LENGTH + 2) * sizeof(char));
 
-	if (c < 0)
+	if (*c < 0)
 		str[p++] = '-';
 
 	calc_hugebase62_powers(HUGEBASE62_LENGTH - 1);
