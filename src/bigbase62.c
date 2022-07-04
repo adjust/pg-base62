@@ -26,8 +26,8 @@ PG_FUNCTION_INFO_V1(bigbase62_cast_from_text);
 PG_FUNCTION_INFO_V1(bigbase62_cast_to_text);
 
 /*
- * This function copied from Postgres source codes because not all versions have
- * it.
+ * mul_s64_overflow and add_s64_overflow are copied from Postgres source codes
+ * because not all versions have it.
  */
 static inline bool
 mul_s64_overflow(int64 a, int64 b, int64 *result)
@@ -46,6 +46,27 @@ mul_s64_overflow(int64 a, int64 b, int64 *result)
 	return false;
 #else
 #error Cannot multiply int64 without built-in int128 support
+	return true;
+#endif
+}
+
+static inline bool
+add_s64_overflow(int64 a, int64 b, int64 *result)
+{
+#if defined(HAVE__BUILTIN_OP_OVERFLOW)
+	return __builtin_add_overflow(a, b, result);
+#elif defined(HAVE_INT128)
+	int128		res = (int128) a + (int128) b;
+
+	if (res > PG_INT64_MAX || res < PG_INT64_MIN)
+	{
+		*result = 0x5EED;		/* to avoid spurious warnings */
+		return true;
+	}
+	*result = (int64) res;
+	return false;
+#else
+#error Cannot add int64 without built-in int128 support
 	return true;
 #endif
 }
@@ -91,12 +112,8 @@ bigbase62_from_str(const char *str)
 					(errcode(ERRCODE_SYNTAX_ERROR),
 					 errmsg("value \"%c\" is not a valid digit for type bigbase62", str[i])));
 
-		if (mul_s64_overflow(d, bigbase62_powers[n - i - 1], &res_buf))
-			OUTOFRANGE_ERROR(str, "bigbase62");
-
-		res += res_buf;
-
-		if (res < 0)
+		if (mul_s64_overflow(d, bigbase62_powers[n - i - 1], &res_buf) ||
+			add_s64_overflow(res, res_buf, &res))
 			OUTOFRANGE_ERROR(str, "bigbase62");
 	}
 	if (neg_sign)

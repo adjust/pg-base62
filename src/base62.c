@@ -23,8 +23,8 @@ PG_FUNCTION_INFO_V1(base62_cast_from_text);
 PG_FUNCTION_INFO_V1(base62_cast_to_text);
 
 /*
- * This function copied from Postgres source codes because not all versions have
- * it.
+ * mul_s32_overflow and add_s32_overflow are copied from Postgres source codes
+ * because not all versions have it.
  */
 static inline bool
 mul_s32_overflow(int32 a, int32 b, int32 *result)
@@ -33,6 +33,24 @@ mul_s32_overflow(int32 a, int32 b, int32 *result)
 	return __builtin_mul_overflow(a, b, result);
 #else
 	int64		res = (int64) a * (int64) b;
+
+	if (res > PG_INT32_MAX || res < PG_INT32_MIN)
+	{
+		*result = 0x5EED;		/* to avoid spurious warnings */
+		return true;
+	}
+	*result = (int32) res;
+	return false;
+#endif
+}
+
+static inline bool
+add_s32_overflow(int32 a, int32 b, int32 *result)
+{
+#if defined(HAVE__BUILTIN_OP_OVERFLOW)
+	return __builtin_add_overflow(a, b, result);
+#else
+	int64		res = (int64) a + (int64) b;
 
 	if (res > PG_INT32_MAX || res < PG_INT32_MIN)
 	{
@@ -84,12 +102,8 @@ base62_from_str(const char *str)
 					(errcode(ERRCODE_SYNTAX_ERROR),
 					 errmsg("value \"%c\" is not a valid digit for type base62", str[i])));
 
-		if (mul_s32_overflow(d, base62_powers[n - i - 1], &res_buf))
-			OUTOFRANGE_ERROR(str, "base62");
-
-		res += res_buf;
-
-		if (res < 0)
+		if (mul_s32_overflow(d, base62_powers[n - i - 1], &res_buf) ||
+			add_s32_overflow(res, res_buf, &res))
 			OUTOFRANGE_ERROR(str, "base62");
 	}
 	if (neg_sign)

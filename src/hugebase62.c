@@ -110,7 +110,8 @@ hugebase62_from_str(const char *str)
 	bool		neg_sign = false;
 	hugebase62 *resp;
 
-	if (n == 0){
+	if (n == 0)
+	{
 		OUTOFRANGE_ERROR(str, "hugebase62");
 	}
 	else if(str[0] == '-')
@@ -131,6 +132,7 @@ hugebase62_from_str(const char *str)
 	for (; i < n; i++)
 	{
 		int32		d;
+		hugebase62	res_buf;
 
 		if (str[i] >= '0' && str[i] <= '9')
 			d = str[i] - '0';
@@ -143,7 +145,11 @@ hugebase62_from_str(const char *str)
 					(errcode(ERRCODE_SYNTAX_ERROR),
 					 errmsg("value \"%c\" is not a valid digit for type hugebase62", str[i])));
 
-		res += d * hugebase62_powers[n - i - 1];
+		res_buf = d * hugebase62_powers[n - i - 1];
+		if (res_buf < 0)
+			OUTOFRANGE_ERROR(str, "hugebase62");
+
+		res += res_buf;
 
 		if (res < 0)
 			OUTOFRANGE_ERROR(str, "hugebase62");
