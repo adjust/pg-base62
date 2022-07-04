@@ -111,7 +111,7 @@ bigbase62_to_str(bigbase62 c)
 				p = 0;
 	bigbase62	m = labs(c);
 	bool		discard = true;
-	char	   *str = palloc0((BIGBASE62_LENGTH + 2) * sizeof(char));
+	char	   *str = palloc((BIGBASE62_LENGTH + 2) * sizeof(char));
 
 	if (c < 0)
 		str[p++] = '-';
@@ -128,6 +128,9 @@ bigbase62_to_str(bigbase62 c)
 		if (!discard)
 			str[p++] = base62_digits[d];
 	}
+
+	// Null terminator
+	str[p] = '\0';
 
 	return str;
 }
