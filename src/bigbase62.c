@@ -58,7 +58,8 @@ bigbase62_from_str(const char *str)
 	bigbase62	res = 0;
 	bool		neg_sign = false;
 
-	if (n == 0){
+	if (n == 0)
+	{
 		OUTOFRANGE_ERROR(str, "bigbase62");
 	}
 	else if(str[0] == '-')
