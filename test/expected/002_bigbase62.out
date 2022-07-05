@@ -1,0 +1,179 @@
+select 120::bigint::bigbase62;
+ bigbase62 
+-----------
+ 1w
+(1 row)
+
+select '1w'::bigbase62::bigint;
+ int8 
+------
+  120
+(1 row)
+
+select '1W'::bigbase62::bigint;
+ int8 
+------
+   94
+(1 row)
+
+select '2LKcb1'::bigbase62::bigint;
+    int8    
+------------
+ 2147483647
+(1 row)
+
+select 2147483647::bigint::bigbase62;
+ bigbase62 
+-----------
+ 2LKcb1
+(1 row)
+
+select '2lkcb1'::bigbase62::bigint;
+    int8    
+------------
+ 2537864911
+(1 row)
+
+select 9223372036854775807::bigbase62;
+  bigbase62  
+-------------
+ AzL8n0Y58m7
+(1 row)
+
+select 'AzL8n0Y58m7'::bigbase62;
+  bigbase62  
+-------------
+ AzL8n0Y58m7
+(1 row)
+
+-- ERROR: out of range
+select 'AAAAAAAAAAA'::base62;
+ERROR:  value "AAAAAAAAAAA" is out of range for type base62
+LINE 1: select 'AAAAAAAAAAA'::base62;
+               ^
+-- ERROR: out of range
+select 'aaaaaaaaaaa'::base62;
+ERROR:  value "aaaaaaaaaaa" is out of range for type base62
+LINE 1: select 'aaaaaaaaaaa'::base62;
+               ^
+-- ERROR: out of range
+select '3caaaaaaaaaaaaa'::bigbase62::bigint;
+ERROR:  value "3caaaaaaaaaaaaa" is out of range for type bigbase62
+LINE 1: select '3caaaaaaaaaaaaa'::bigbase62::bigint;
+               ^
+-- ERROR: not a valid digit
+select '3&'::bigbase62::bigint;
+ERROR:  value "&" is not a valid digit for type bigbase62
+LINE 1: select '3&'::bigbase62::bigint;
+               ^
+select 'a'::bigbase62 > 'b'::bigbase62;
+ ?column? 
+----------
+ f
+(1 row)
+
+select 'a'::bigbase62 < 'b'::bigbase62;
+ ?column? 
+----------
+ t
+(1 row)
+
+-- Negativity test
+select  i::bigbase62,i::bigbase62::bigint from (values ('11111'), ('acDeq'), ('10'), ('A'), ('-1'), ('-A')) as v(i);
+   i   |     i     
+-------+-----------
+ 11111 |  15018571
+ acDeq | 541057064
+ 10    |        62
+ A     |        10
+ -1    |        -1
+ -A    |       -10
+(6 rows)
+
+-- Test values
+select i::bigint::bigbase62
+from generate_series(1, 80) g(i);
+ i  
+----
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ A
+ B
+ C
+ D
+ E
+ F
+ G
+ H
+ I
+ J
+ K
+ L
+ M
+ N
+ O
+ P
+ Q
+ R
+ S
+ T
+ U
+ V
+ W
+ X
+ Y
+ Z
+ a
+ b
+ c
+ d
+ e
+ f
+ g
+ h
+ i
+ j
+ k
+ l
+ m
+ n
+ o
+ p
+ q
+ r
+ s
+ t
+ u
+ v
+ w
+ x
+ y
+ z
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 1A
+ 1B
+ 1C
+ 1D
+ 1E
+ 1F
+ 1G
+ 1H
+ 1I
+(80 rows)
+
