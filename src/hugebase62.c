@@ -7,7 +7,7 @@
 
 #if PG_VERSION_NUM >= 130000
 #include "common/hashfn.h"
-#elif PG_VERSION_NUM >= 110000
+#elif PG_VERSION_NUM >= 120000
 #include "utils/hashutils.h"
 #else
 #include "access/hash.h"
