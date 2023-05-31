@@ -4,13 +4,14 @@ on:
   push:
     branches:
       - master
+      - main
   pull_request:
 
 jobs:
   test:
     strategy:
       matrix:
-        pg: [14, 12, 10, 9.6]
+        pg: [15, 14, 13, 12, 11, 10]
     name: 🐘 PostgreSQL ${{ matrix.pg }}
     runs-on: ubuntu-latest
     container: pgxn/pgxn-tools
@@ -18,3 +19,4 @@ jobs:
       - run: pg-start ${{ matrix.pg }}
       - uses: actions/checkout@v2
       - run: pg-build-test
+
