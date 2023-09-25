@@ -1,0 +1,38 @@
+{
+   "name": "base62",
+   "abstract": "Integers represented in base62",
+   "version": "0.0.1",
+   "maintainer": [ "Artur Zakirov <artur.zakirov@adjust.com>", "Manuel Kniep <rapimo@adjust.com>" ],
+   "license": {
+      "PostgreSQL": "http://www.postgresql.org/about/licence"
+   },
+   "provides": { 
+      "base36": {
+         "file": "sql/base62.sql",
+         "version": "0.0.1",
+         "abstract": "Integers represented in base62"
+      }
+   },
+   "meta-spec": {
+     "version": "0.0.1",
+     "url": "http://pgxn.org/meta/spec.txt"
+   },
+   "description": "Integers represented in base62",
+   "prereqs": {
+      "runtime": {
+        "requires": {
+           "PostgreSQL": "9.3.0"
+        }
+      }
+   },
+   "resources": {
+       "bugtracker": {
+           "web": "http://github.com/adjust/pg-base62/issues"
+       },
+       "repository": {
+          "url": "git://github.com/adjust/pg-base62.git",
+          "web": "http://github.com/adjust/pg-base62",
+          "type": "git"
+       }
+   }
+}
