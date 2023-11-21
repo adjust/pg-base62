@@ -3,7 +3,9 @@
    "author": "adjustgmbh",
    "abstract": "Integers represented in base62",
    "version": "0.0.1",
-   "maintainer": [ "Artur Zakirov <artur.zakirov@adjust.com>", "Manuel Kniep <rapimo@adjust.com>" ],
+   "maintainer" : [
+      "adjustgmbh"
+   ],
    "license": {
       "PostgreSQL": "http://www.postgresql.org/about/licence"
    },
@@ -22,7 +24,7 @@
    "prereqs": {
       "runtime": {
         "requires": {
-           "PostgreSQL": "10.0"
+           "PostgreSQL": "10.0.0"
         }
       }
    },
