@@ -1,6 +1,5 @@
 {
    "name": "base62",
-   "author": "adjustgmbh",
    "abstract": "Integers represented in base62",
    "version": "0.0.1",
    "maintainer" : [
