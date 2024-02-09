@@ -13,6 +13,11 @@
 #include "access/hash.h"
 #endif
 
+// pg16 compability
+#if PG_VERSION_NUM >= 160000
+#include "varatt.h"
+#endif
+
 #define HUGEBASE62_NONZERO_POWERS	11
 // int128 can store 22 characters, to avoid overflow the capacity is lower
 #define HUGEBASE62_LENGTH			20
