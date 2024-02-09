@@ -174,7 +174,7 @@ hugebase62_to_str(hugebase62 *c)
 	int			i,
 				d,
 				p = 0;
-	hugebase62	m = Abs(*c);
+	hugebase62	m = abs(*c);
 	bool		discard = true;
 	char	   *str = palloc((HUGEBASE62_LENGTH + 2) * sizeof(char));
 
