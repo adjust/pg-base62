@@ -5,6 +5,9 @@
 #include "libpq/pqformat.h"
 #include "utils/builtins.h"
 
+#if PG_VERSION_NUM >= 160000
+#include "varatt.h"
+#endif
 #if PG_VERSION_NUM >= 130000
 #include "common/hashfn.h"
 #elif PG_VERSION_NUM >= 120000
@@ -169,7 +172,7 @@ hugebase62_to_str(hugebase62 *c)
 	int			i,
 				d,
 				p = 0;
-	hugebase62	m = Abs(*c);
+	hugebase62	m = abs(*c);
 	bool		discard = true;
 	char	   *str = palloc((HUGEBASE62_LENGTH + 2) * sizeof(char));
 
