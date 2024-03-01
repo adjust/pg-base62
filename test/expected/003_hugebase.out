@@ -17,9 +17,9 @@ select '1W'::hugebase62;
 (1 row)
 
 select '3caaaaaaaaaaaaa'::hugebase62;
-   hugebase62    
------------------
- 3caaaaaaaaaaaaa
+ hugebase62 
+------------
+ 1hwqdA
 (1 row)
 
 select '2LKcb1'::hugebase62;
@@ -41,27 +41,27 @@ select '2lkcb1'::hugebase62::bytea;
 (1 row)
 
 select 'AzL8n0Y58m7aa'::hugebase62;
-  hugebase62   
----------------
- AzL8n0Y58m7aa
+ hugebase62 
+------------
+ PQ
 (1 row)
 
 select 'azl8n0y58m7aa'::hugebase62;
-  hugebase62   
----------------
- azl8n0y58m7aa
+ hugebase62 
+------------
+ 1Xitse
 (1 row)
 
 select 'AAAAAAAAAAAAAAAAAAAA'::hugebase62;
-      hugebase62      
-----------------------
- AAAAAAAAAAAAAAAAAAAA
+ hugebase62 
+------------
+ L9gxq
 (1 row)
 
 select 'aaaaaaaaaaaaaaaaaaaa'::hugebase62;
-      hugebase62      
-----------------------
- aaaaaaaaaaaaaaaaaaaa
+ hugebase62 
+------------
+ 1aEeRQ
 (1 row)
 
 -- ERROR: out of range

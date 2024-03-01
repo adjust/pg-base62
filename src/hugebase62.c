@@ -5,6 +5,9 @@
 #include "libpq/pqformat.h"
 #include "utils/builtins.h"
 
+#if PG_VERSION_NUM >= 160000
+#include "varatt.h"
+#endif
 #if PG_VERSION_NUM >= 130000
 #include "common/hashfn.h"
 #elif PG_VERSION_NUM >= 120000

@@ -3,6 +3,16 @@
 
 #include "postgres.h"
 
+// @rapimo's note from ipath, we need same here, otherwise impossible to compile for PG16
+/*
+ * pg >= 16 reorganized the toastable header files
+ * https://github.com/postgres/postgres/commit/d952373a987bad331c0e499463159dd142ced1ef
+ * to ensure cross version compatibility we do a bit of a hack here
+ */
+#ifndef SET_VARSIZE
+#include "varatt.h"
+#endif
+
 typedef int32 base62;
 typedef int64 bigbase62;
 typedef int128 hugebase62;

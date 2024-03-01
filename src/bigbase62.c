@@ -2,6 +2,9 @@
 #include "fmgr.h"
 
 #include "utils/builtins.h"
+#if PG_VERSION_NUM >= 160000
+#include "varatt.h"
+#endif
 
 #define BIGBASE62_LENGTH	11
 
