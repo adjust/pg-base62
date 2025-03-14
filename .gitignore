@@ -1,5 +1,7 @@
 *.o
 *.so
+*.dylib
+*.bc
 
 test/results
 test/regression.diffs

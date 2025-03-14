@@ -1,7 +1,7 @@
 {
    "name": "base62",
    "abstract": "Integers represented in base62",
-   "version": "0.0.1",
+   "version": "0.0.2",
    "maintainer" : [
       "adjustgmbh"
    ],
@@ -11,7 +11,7 @@
    "provides": { 
       "base36": {
          "file": "sql/base62.sql",
-         "version": "0.0.1",
+         "version": "0.0.2",
          "abstract": "Integers represented in base62"
       }
    },
